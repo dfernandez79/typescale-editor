@@ -1,10 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-
-interface FontFamily {
-  family: string;
-  category: string;
-  weights: string[];
-}
+import { useEffect, useRef, useState } from 'react';
+import { type FontFamily, useFonts } from '../hooks/use-fonts';
 
 interface FontPickerModalProps {
   onInsert: (css: string) => void;
@@ -12,31 +7,29 @@ interface FontPickerModalProps {
 }
 
 const WEIGHT_LABELS: Record<string, string> = {
-  "100": "Thin",
-  "200": "ExtraLight",
-  "300": "Light",
-  regular: "Regular (400)",
-  "400": "Regular",
-  "500": "Medium",
-  "600": "SemiBold",
-  "700": "Bold",
-  "800": "ExtraBold",
-  "900": "Black",
-  italic: "Italic",
+  '100': 'Thin',
+  '200': 'ExtraLight',
+  '300': 'Light',
+  regular: 'Regular (400)',
+  '400': 'Regular',
+  '500': 'Medium',
+  '600': 'SemiBold',
+  '700': 'Bold',
+  '800': 'ExtraBold',
+  '900': 'Black',
+  italic: 'Italic',
 };
 
 function normalizeWeight(w: string): string {
-  return w === "regular" ? "400" : w === "italic" ? "400i" : w;
+  return w === 'regular' ? '400' : w === 'italic' ? '400i' : w;
 }
 
 export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
-  const [fonts, setFonts] = useState<FontFamily[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
+  const { data: fonts = [], isLoading: loading, error } = useFonts();
+  const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<FontFamily | null>(null);
   const [selectedWeights, setSelectedWeights] = useState<Set<string>>(
-    new Set(["400"]),
+    new Set(['400'])
   );
   const searchRef = useRef<HTMLInputElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
@@ -46,49 +39,32 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
     searchRef.current?.focus();
   }, []);
 
-  // Load font list
-  useEffect(() => {
-    fetch("/api/fonts")
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json() as Promise<FontFamily[]>;
-      })
-      .then((data) => {
-        setFonts(data);
-        setLoading(false);
-      })
-      .catch((e: Error) => {
-        setError(e.message);
-        setLoading(false);
-      });
-  }, []);
-
   // Escape key closes
   useEffect(() => {
     function handler(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (e.key === 'Escape') onClose();
     }
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
   }, [onClose]);
 
   const filtered = search.trim()
-    ? fonts.filter((f) => f.family.toLowerCase().includes(search.toLowerCase()))
+    ? fonts.filter(f => f.family.toLowerCase().includes(search.toLowerCase()))
     : fonts;
 
   function selectFont(font: FontFamily) {
     setSelected(font);
     // Default: pick "regular"/400 if available, else first weight
     const defaultWeight =
-      font.weights.find((w) => w === "regular" || w === "400") ??
+      font.weights.find(w => w === 'regular' || w === '400') ??
       font.weights[0] ??
-      "regular";
-    setSelectedWeights(new Set([normalizeWeight(defaultWeight ?? "400")]));
+      'regular';
+    setSelectedWeights(new Set([normalizeWeight(defaultWeight ?? '400')]));
   }
 
   function toggleWeight(w: string) {
     const norm = normalizeWeight(w);
-    setSelectedWeights((prev) => {
+    setSelectedWeights(prev => {
       const next = new Set(prev);
       if (next.has(norm)) {
         if (next.size === 1) return prev; // keep at least one
@@ -101,12 +77,12 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
   }
 
   function buildSnippet(): string {
-    if (!selected) return "";
-    const familyParam = selected.family.replace(/ /g, "+");
+    if (!selected) return '';
+    const familyParam = selected.family.replace(/ /g, '+');
     const weightsStr = Array.from(selectedWeights)
-      .filter((w) => !w.endsWith("i"))
+      .filter(w => !w.endsWith('i'))
       .sort()
-      .join(";");
+      .join(';');
     const url = `https://fonts.googleapis.com/css2?family=${familyParam}:wght@${weightsStr}&display=swap`;
     return `@import url('${url}');\n/* font-family: '${selected.family}', ${selected.category}; */`;
   }
@@ -121,13 +97,13 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
     <div
       ref={backdropRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-      onMouseDown={(e) => {
+      onMouseDown={e => {
         if (e.target === backdropRef.current) onClose();
       }}
     >
       <div
         className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-lg flex flex-col"
-        style={{ maxHeight: "80vh" }}
+        style={{ maxHeight: '80vh' }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-700">
@@ -149,7 +125,7 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
             ref={searchRef}
             type="search"
             value={search}
-            onChange={(e) => {
+            onChange={e => {
               setSearch(e.target.value);
               setSelected(null);
             }}
@@ -167,7 +143,7 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
           )}
           {error && (
             <div className="py-8 text-center text-red-400 text-sm">
-              Failed to load fonts: {error}
+              Failed to load fonts: {error.message}
             </div>
           )}
           {!loading && !error && filtered.length === 0 && (
@@ -177,7 +153,7 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
           )}
           {!loading &&
             !error &&
-            filtered.slice(0, 100).map((font) => (
+            filtered.slice(0, 100).map(font => (
               <button
                 type="button"
                 key={font.family}
@@ -185,13 +161,13 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
                 className={`w-full text-left px-5 py-2.5 text-sm flex justify-between items-center transition-colors
                 ${
                   selected?.family === font.family
-                    ? "bg-blue-600 text-white"
-                    : "text-zinc-200 hover:bg-zinc-800"
+                    ? 'bg-blue-600 text-white'
+                    : 'text-zinc-200 hover:bg-zinc-800'
                 }`}
               >
                 <span className="font-medium">{font.family}</span>
                 <span
-                  className={`text-xs ${selected?.family === font.family ? "text-blue-200" : "text-zinc-500"}`}
+                  className={`text-xs ${selected?.family === font.family ? 'text-blue-200' : 'text-zinc-500'}`}
                 >
                   {font.category}
                 </span>
@@ -211,7 +187,7 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
               Weights for {selected.family}
             </div>
             <div className="flex flex-wrap gap-2">
-              {selected.weights.map((w) => {
+              {selected.weights.map(w => {
                 const norm = normalizeWeight(w);
                 const label = WEIGHT_LABELS[w] ?? w;
                 const active = selectedWeights.has(norm);
@@ -223,8 +199,8 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
                     className={`px-2.5 py-1 rounded text-xs font-medium transition-colors
                       ${
                         active
-                          ? "bg-blue-600 text-white"
-                          : "bg-zinc-700 text-zinc-300 hover:bg-zinc-600"
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
                       }`}
                   >
                     {label}
