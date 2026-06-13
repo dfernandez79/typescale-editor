@@ -32,21 +32,13 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
     new Set(['400'])
   );
   const searchRef = useRef<HTMLInputElement>(null);
-  const backdropRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
-  // Focus search on open
+  // Open as a native modal dialog and focus search
   useEffect(() => {
+    dialogRef.current?.showModal();
     searchRef.current?.focus();
   }, []);
-
-  // Escape key closes
-  useEffect(() => {
-    function handler(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose();
-    }
-    document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
-  }, [onClose]);
 
   const filtered = search.trim()
     ? fonts.filter(f => f.family.toLowerCase().includes(search.toLowerCase()))
@@ -90,155 +82,151 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
   function handleInsert() {
     const snippet = buildSnippet();
     if (snippet) onInsert(snippet);
-    onClose();
+    dialogRef.current?.close();
   }
 
   return (
-    <div
-      ref={backdropRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+    <dialog
+      ref={dialogRef}
+      onClose={onClose}
       onMouseDown={e => {
-        if (e.target === backdropRef.current) onClose();
+        if (e.target === dialogRef.current) dialogRef.current?.close();
       }}
+      className="m-auto bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col p-0 backdrop:bg-black/60"
     >
-      <div
-        className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-lg flex flex-col"
-        style={{ maxHeight: '80vh' }}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-700">
-          <h2 className="text-base font-semibold text-zinc-100">
-            Insert Google Font
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-zinc-400 hover:text-zinc-100 transition-colors text-xl leading-none"
-          >
-            ×
-          </button>
-        </div>
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-700">
+        <h2 className="text-base font-semibold text-zinc-100">
+          Insert Google Font
+        </h2>
+        <button
+          type="button"
+          onClick={() => dialogRef.current?.close()}
+          className="text-zinc-400 hover:text-zinc-100 transition-colors text-xl leading-none"
+        >
+          ×
+        </button>
+      </div>
 
-        {/* Search */}
-        <div className="px-5 py-3 border-b border-zinc-700">
-          <input
-            ref={searchRef}
-            type="search"
-            value={search}
-            onChange={e => {
-              setSearch(e.target.value);
-              setSelected(null);
-            }}
-            placeholder="Search font families…"
-            className="w-full bg-zinc-800 border border-zinc-600 rounded px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-blue-500"
-          />
-        </div>
+      {/* Search */}
+      <div className="px-5 py-3 border-b border-zinc-700">
+        <input
+          ref={searchRef}
+          type="search"
+          value={search}
+          onChange={e => {
+            setSearch(e.target.value);
+            setSelected(null);
+          }}
+          placeholder="Search font families…"
+          className="w-full bg-zinc-800 border border-zinc-600 rounded px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-blue-500"
+        />
+      </div>
 
-        {/* Font list */}
-        <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
-          {loading && (
-            <div className="py-8 text-center text-zinc-400 text-sm">
-              Loading fonts…
-            </div>
-          )}
-          {error && (
-            <div className="py-8 text-center text-red-400 text-sm">
-              Failed to load fonts: {error.message}
-            </div>
-          )}
-          {!loading && !error && filtered.length === 0 && (
-            <div className="py-8 text-center text-zinc-500 text-sm">
-              No fonts match "{search}"
-            </div>
-          )}
-          {!loading &&
-            !error &&
-            filtered.slice(0, 100).map(font => (
-              <button
-                type="button"
-                key={font.family}
-                onClick={() => selectFont(font)}
-                className={`w-full text-left px-5 py-2.5 text-sm flex justify-between items-center transition-colors
+      {/* Font list */}
+      <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
+        {loading && (
+          <div className="py-8 text-center text-zinc-400 text-sm">
+            Loading fonts…
+          </div>
+        )}
+        {error && (
+          <div className="py-8 text-center text-red-400 text-sm">
+            Failed to load fonts: {error.message}
+          </div>
+        )}
+        {!loading && !error && filtered.length === 0 && (
+          <div className="py-8 text-center text-zinc-500 text-sm">
+            No fonts match "{search}"
+          </div>
+        )}
+        {!loading &&
+          !error &&
+          filtered.slice(0, 100).map(font => (
+            <button
+              type="button"
+              key={font.family}
+              onClick={() => selectFont(font)}
+              className={`w-full text-left px-5 py-2.5 text-sm flex justify-between items-center transition-colors
                 ${
                   selected?.family === font.family
                     ? 'bg-blue-600 text-white'
                     : 'text-zinc-200 hover:bg-zinc-800'
                 }`}
+            >
+              <span className="font-medium">{font.family}</span>
+              <span
+                className={`text-xs ${selected?.family === font.family ? 'text-blue-200' : 'text-zinc-500'}`}
               >
-                <span className="font-medium">{font.family}</span>
-                <span
-                  className={`text-xs ${selected?.family === font.family ? 'text-blue-200' : 'text-zinc-500'}`}
-                >
-                  {font.category}
-                </span>
-              </button>
-            ))}
-          {!loading && !error && filtered.length > 100 && (
-            <div className="py-2 text-center text-zinc-500 text-xs">
-              Showing 100 of {filtered.length} — refine search to see more
-            </div>
-          )}
-        </div>
+                {font.category}
+              </span>
+            </button>
+          ))}
+        {!loading && !error && filtered.length > 100 && (
+          <div className="py-2 text-center text-zinc-500 text-xs">
+            Showing 100 of {filtered.length} — refine search to see more
+          </div>
+        )}
+      </div>
 
-        {/* Weight picker */}
-        {selected && (
-          <div className="px-5 py-3 border-t border-zinc-700 bg-zinc-850">
-            <div className="text-xs text-zinc-400 mb-2 font-medium uppercase tracking-wide">
-              Weights for {selected.family}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {selected.weights.map(w => {
-                const norm = normalizeWeight(w);
-                const label = WEIGHT_LABELS[w] ?? w;
-                const active = selectedWeights.has(norm);
-                return (
-                  <button
-                    type="button"
-                    key={w}
-                    onClick={() => toggleWeight(w)}
-                    className={`px-2.5 py-1 rounded text-xs font-medium transition-colors
+      {/* Weight picker */}
+      {selected && (
+        <div className="px-5 py-3 border-t border-zinc-700 bg-zinc-850">
+          <div className="text-xs text-zinc-400 mb-2 font-medium uppercase tracking-wide">
+            Weights for {selected.family}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {selected.weights.map(w => {
+              const norm = normalizeWeight(w);
+              const label = WEIGHT_LABELS[w] ?? w;
+              const active = selectedWeights.has(norm);
+              return (
+                <button
+                  type="button"
+                  key={w}
+                  onClick={() => toggleWeight(w)}
+                  className={`px-2.5 py-1 rounded text-xs font-medium transition-colors
                       ${
                         active
                           ? 'bg-blue-600 text-white'
                           : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
                       }`}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
-        )}
-
-        {/* Preview snippet */}
-        {selected && (
-          <div className="px-5 py-3 border-t border-zinc-700">
-            <pre className="text-xs text-zinc-300 bg-zinc-800 rounded p-2.5 overflow-x-auto">
-              {buildSnippet()}
-            </pre>
-          </div>
-        )}
-
-        {/* Footer */}
-        <div className="flex justify-end gap-2 px-5 py-4 border-t border-zinc-700">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-1.5 rounded text-sm text-zinc-300 hover:text-zinc-100 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleInsert}
-            disabled={!selected}
-            className="px-4 py-1.5 rounded text-sm font-medium bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          >
-            Insert @import
-          </button>
         </div>
+      )}
+
+      {/* Preview snippet */}
+      {selected && (
+        <div className="px-5 py-3 border-t border-zinc-700">
+          <pre className="text-xs text-zinc-300 bg-zinc-800 rounded p-2.5 overflow-x-auto">
+            {buildSnippet()}
+          </pre>
+        </div>
+      )}
+
+      {/* Footer */}
+      <div className="flex justify-end gap-2 px-5 py-4 border-t border-zinc-700">
+        <button
+          type="button"
+          onClick={() => dialogRef.current?.close()}
+          className="px-4 py-1.5 rounded text-sm text-zinc-300 hover:text-zinc-100 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          onClick={handleInsert}
+          disabled={!selected}
+          className="px-4 py-1.5 rounded text-sm font-medium bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          Insert @import
+        </button>
       </div>
-    </div>
+    </dialog>
   );
 }

@@ -71,6 +71,7 @@ export function PreviewPanel({
   );
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: drag-and-drop file target, not keyboard-interactive
     <div
       className="relative h-full w-full overflow-hidden"
       onDragOver={handleDragOver}
