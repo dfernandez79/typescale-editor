@@ -1,8 +1,80 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
-import { EditorView, basicSetup } from "codemirror";
+import {
+  EditorView,
+  lineNumbers,
+  highlightActiveLineGutter,
+  highlightSpecialChars,
+  drawSelection,
+  dropCursor,
+  rectangularSelection,
+  crosshairCursor,
+  highlightActiveLine,
+  keymap,
+} from "@codemirror/view";
 import { EditorState } from "@codemirror/state";
+import {
+  foldGutter,
+  indentOnInput,
+  syntaxHighlighting,
+  defaultHighlightStyle,
+  bracketMatching,
+  foldKeymap,
+} from "@codemirror/language";
+import { history, defaultKeymap, historyKeymap } from "@codemirror/commands";
+import { highlightSelectionMatches, searchKeymap } from "@codemirror/search";
+import {
+  closeBrackets,
+  autocompletion,
+  closeBracketsKeymap,
+  completionKeymap,
+} from "@codemirror/autocomplete";
+import { lintKeymap } from "@codemirror/lint";
 import { css } from "@codemirror/lang-css";
 import { oneDark } from "@codemirror/theme-one-dark";
+
+// Centered chevron fold marker (replaces default text glyphs that sit off-center)
+function foldMarker(open: boolean): HTMLElement {
+  const span = document.createElement("span");
+  span.style.display = "flex";
+  span.style.alignItems = "center";
+  span.style.justifyContent = "center";
+  span.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;transform:rotate(${
+    open ? 0 : -90
+  }deg)"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+  return span;
+}
+
+// codemirror's basicSetup, inlined so we can swap in a custom fold gutter marker
+const basicSetup = [
+  lineNumbers(),
+  highlightActiveLineGutter(),
+  highlightSpecialChars(),
+  history(),
+  foldGutter({
+    markerDOM: (open) => foldMarker(open),
+  }),
+  drawSelection(),
+  dropCursor(),
+  EditorState.allowMultipleSelections.of(true),
+  indentOnInput(),
+  syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+  bracketMatching(),
+  closeBrackets(),
+  autocompletion(),
+  rectangularSelection(),
+  crosshairCursor(),
+  highlightActiveLine(),
+  highlightSelectionMatches(),
+  keymap.of([
+    ...closeBracketsKeymap,
+    ...defaultKeymap,
+    ...searchKeymap,
+    ...historyKeymap,
+    ...foldKeymap,
+    ...completionKeymap,
+    ...lintKeymap,
+  ]),
+];
 
 export interface CssEditorHandle {
   insertText: (text: string) => void;
@@ -71,6 +143,12 @@ export const CssEditor = forwardRef<CssEditorHandle, CssEditorProps>(
               fontFamily: "'Menlo', 'Consolas', monospace",
             },
             ".cm-focused": { outline: "none" },
+            ".cm-foldGutter .cm-gutterElement": {
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "0 2px",
+            },
           }),
         ],
       });
