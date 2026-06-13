@@ -5,11 +5,13 @@
  * It is included in `src/index.html`.
  */
 
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import { App } from "./App";
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { App } from './app';
 
-const elem = document.getElementById("root")!;
+// biome-ignore lint/style/noNonNullAssertion: The root element is guaranteed to exist in index.html
+const elem = document.getElementById('root')!;
+
 const app = (
   <StrictMode>
     <App />
@@ -17,4 +19,5 @@ const app = (
 );
 
 // https://bun.com/docs/bundler/hot-reloading#import-meta-hot-data
+// biome-ignore lint/suspicious/noAssignInExpressions: Hot reloading
 (import.meta.hot.data.root ??= createRoot(elem)).render(app);

@@ -15,14 +15,14 @@ const WEIGHT_LABELS: Record<string, string> = {
   "100": "Thin",
   "200": "ExtraLight",
   "300": "Light",
-  "regular": "Regular (400)",
+  regular: "Regular (400)",
   "400": "Regular",
   "500": "Medium",
   "600": "SemiBold",
   "700": "Bold",
   "800": "ExtraBold",
   "900": "Black",
-  "italic": "Italic",
+  italic: "Italic",
 };
 
 function normalizeWeight(w: string): string {
@@ -35,7 +35,9 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<FontFamily | null>(null);
-  const [selectedWeights, setSelectedWeights] = useState<Set<string>>(new Set(["400"]));
+  const [selectedWeights, setSelectedWeights] = useState<Set<string>>(
+    new Set(["400"]),
+  );
   const searchRef = useRef<HTMLInputElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
 
@@ -71,9 +73,7 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
   }, [onClose]);
 
   const filtered = search.trim()
-    ? fonts.filter((f) =>
-        f.family.toLowerCase().includes(search.toLowerCase())
-      )
+    ? fonts.filter((f) => f.family.toLowerCase().includes(search.toLowerCase()))
     : fonts;
 
   function selectFont(font: FontFamily) {
@@ -125,12 +125,17 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
         if (e.target === backdropRef.current) onClose();
       }}
     >
-      <div className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-lg flex flex-col"
-        style={{ maxHeight: "80vh" }}>
+      <div
+        className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-lg flex flex-col"
+        style={{ maxHeight: "80vh" }}
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-700">
-          <h2 className="text-base font-semibold text-zinc-100">Insert Google Font</h2>
+          <h2 className="text-base font-semibold text-zinc-100">
+            Insert Google Font
+          </h2>
           <button
+            type="button"
             onClick={onClose}
             className="text-zinc-400 hover:text-zinc-100 transition-colors text-xl leading-none"
           >
@@ -156,7 +161,9 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
         {/* Font list */}
         <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
           {loading && (
-            <div className="py-8 text-center text-zinc-400 text-sm">Loading fonts…</div>
+            <div className="py-8 text-center text-zinc-400 text-sm">
+              Loading fonts…
+            </div>
           )}
           {error && (
             <div className="py-8 text-center text-red-400 text-sm">
@@ -164,24 +171,32 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
             </div>
           )}
           {!loading && !error && filtered.length === 0 && (
-            <div className="py-8 text-center text-zinc-500 text-sm">No fonts match "{search}"</div>
+            <div className="py-8 text-center text-zinc-500 text-sm">
+              No fonts match "{search}"
+            </div>
           )}
-          {!loading && !error && filtered.slice(0, 100).map((font) => (
-            <button
-              key={font.family}
-              onClick={() => selectFont(font)}
-              className={`w-full text-left px-5 py-2.5 text-sm flex justify-between items-center transition-colors
-                ${selected?.family === font.family
-                  ? "bg-blue-600 text-white"
-                  : "text-zinc-200 hover:bg-zinc-800"
+          {!loading &&
+            !error &&
+            filtered.slice(0, 100).map((font) => (
+              <button
+                type="button"
+                key={font.family}
+                onClick={() => selectFont(font)}
+                className={`w-full text-left px-5 py-2.5 text-sm flex justify-between items-center transition-colors
+                ${
+                  selected?.family === font.family
+                    ? "bg-blue-600 text-white"
+                    : "text-zinc-200 hover:bg-zinc-800"
                 }`}
-            >
-              <span className="font-medium">{font.family}</span>
-              <span className={`text-xs ${selected?.family === font.family ? "text-blue-200" : "text-zinc-500"}`}>
-                {font.category}
-              </span>
-            </button>
-          ))}
+              >
+                <span className="font-medium">{font.family}</span>
+                <span
+                  className={`text-xs ${selected?.family === font.family ? "text-blue-200" : "text-zinc-500"}`}
+                >
+                  {font.category}
+                </span>
+              </button>
+            ))}
           {!loading && !error && filtered.length > 100 && (
             <div className="py-2 text-center text-zinc-500 text-xs">
               Showing 100 of {filtered.length} — refine search to see more
@@ -202,12 +217,14 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
                 const active = selectedWeights.has(norm);
                 return (
                   <button
+                    type="button"
                     key={w}
                     onClick={() => toggleWeight(w)}
                     className={`px-2.5 py-1 rounded text-xs font-medium transition-colors
-                      ${active
-                        ? "bg-blue-600 text-white"
-                        : "bg-zinc-700 text-zinc-300 hover:bg-zinc-600"
+                      ${
+                        active
+                          ? "bg-blue-600 text-white"
+                          : "bg-zinc-700 text-zinc-300 hover:bg-zinc-600"
                       }`}
                   >
                     {label}
@@ -230,12 +247,14 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
         {/* Footer */}
         <div className="flex justify-end gap-2 px-5 py-4 border-t border-zinc-700">
           <button
+            type="button"
             onClick={onClose}
             className="px-4 py-1.5 rounded text-sm text-zinc-300 hover:text-zinc-100 transition-colors"
           >
             Cancel
           </button>
           <button
+            type="button"
             onClick={handleInsert}
             disabled={!selected}
             className="px-4 py-1.5 rounded text-sm font-medium bg-blue-600 text-white hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"

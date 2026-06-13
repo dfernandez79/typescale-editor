@@ -1,43 +1,43 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import {
-  EditorView,
-  lineNumbers,
-  highlightActiveLineGutter,
-  highlightSpecialChars,
-  drawSelection,
-  dropCursor,
-  rectangularSelection,
-  crosshairCursor,
-  highlightActiveLine,
-  keymap,
-} from "@codemirror/view";
-import { EditorState } from "@codemirror/state";
-import {
-  foldGutter,
-  indentOnInput,
-  syntaxHighlighting,
-  defaultHighlightStyle,
-  bracketMatching,
-  foldKeymap,
-} from "@codemirror/language";
-import { history, defaultKeymap, historyKeymap } from "@codemirror/commands";
-import { highlightSelectionMatches, searchKeymap } from "@codemirror/search";
-import {
-  closeBrackets,
   autocompletion,
+  closeBrackets,
   closeBracketsKeymap,
   completionKeymap,
-} from "@codemirror/autocomplete";
-import { lintKeymap } from "@codemirror/lint";
-import { css } from "@codemirror/lang-css";
-import { oneDark } from "@codemirror/theme-one-dark";
+} from '@codemirror/autocomplete';
+import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
+import { css } from '@codemirror/lang-css';
+import {
+  bracketMatching,
+  defaultHighlightStyle,
+  foldGutter,
+  foldKeymap,
+  indentOnInput,
+  syntaxHighlighting,
+} from '@codemirror/language';
+import { lintKeymap } from '@codemirror/lint';
+import { highlightSelectionMatches, searchKeymap } from '@codemirror/search';
+import { EditorState } from '@codemirror/state';
+import { oneDark } from '@codemirror/theme-one-dark';
+import {
+  crosshairCursor,
+  drawSelection,
+  dropCursor,
+  EditorView,
+  highlightActiveLine,
+  highlightActiveLineGutter,
+  highlightSpecialChars,
+  keymap,
+  lineNumbers,
+  rectangularSelection,
+} from '@codemirror/view';
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 
 // Centered chevron fold marker (replaces default text glyphs that sit off-center)
 function foldMarker(open: boolean): HTMLElement {
-  const span = document.createElement("span");
-  span.style.display = "flex";
-  span.style.alignItems = "center";
-  span.style.justifyContent = "center";
+  const span = document.createElement('span');
+  span.style.display = 'flex';
+  span.style.alignItems = 'center';
+  span.style.justifyContent = 'center';
   span.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;transform:rotate(${
     open ? 0 : -90
   }deg)"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
@@ -51,7 +51,7 @@ const basicSetup = [
   highlightSpecialChars(),
   history(),
   foldGutter({
-    markerDOM: (open) => foldMarker(open),
+    markerDOM: open => foldMarker(open),
   }),
   drawSelection(),
   dropCursor(),
@@ -118,10 +118,11 @@ export const CssEditor = forwardRef<CssEditorHandle, CssEditorProps>(
     }));
 
     // Create editor once
+    // biome-ignore lint/correctness/useExhaustiveDependencies: view initialization, the value effect is handled separately
     useEffect(() => {
       if (!containerRef.current) return;
 
-      const updateListener = EditorView.updateListener.of((update) => {
+      const updateListener = EditorView.updateListener.of(update => {
         if (update.docChanged) {
           isInternalChange.current = true;
           onChange(update.state.doc.toString());
@@ -137,17 +138,17 @@ export const CssEditor = forwardRef<CssEditorHandle, CssEditorProps>(
           oneDark,
           updateListener,
           EditorView.theme({
-            "&": { height: "100%", fontSize: "13px" },
-            ".cm-scroller": {
-              overflow: "auto",
+            '&': { height: '100%', fontSize: '13px' },
+            '.cm-scroller': {
+              overflow: 'auto',
               fontFamily: "'Menlo', 'Consolas', monospace",
             },
-            ".cm-focused": { outline: "none" },
-            ".cm-foldGutter .cm-gutterElement": {
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "0 2px",
+            '.cm-focused': { outline: 'none' },
+            '.cm-foldGutter .cm-gutterElement': {
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '0 2px',
             },
           }),
         ],
@@ -160,7 +161,6 @@ export const CssEditor = forwardRef<CssEditorHandle, CssEditorProps>(
         view.destroy();
         viewRef.current = null;
       };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Sync external value changes (e.g. scale insertion from outside) without feedback loop
@@ -182,5 +182,5 @@ export const CssEditor = forwardRef<CssEditorHandle, CssEditorProps>(
         style={{ minHeight: 0 }}
       />
     );
-  },
+  }
 );

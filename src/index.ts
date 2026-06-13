@@ -1,5 +1,5 @@
-import { serve } from "bun";
-import index from "./index.html";
+import { serve } from 'bun';
+import index from './index.html';
 
 interface FontEntry {
   family: string;
@@ -13,12 +13,12 @@ let fontsCache: FontEntry[] | null = null;
 async function fetchGoogleFonts(): Promise<FontEntry[]> {
   if (fontsCache) return fontsCache;
 
-  const r = await fetch("https://fonts.google.com/metadata/fonts");
+  const r = await fetch('https://fonts.google.com/metadata/fonts');
   if (!r.ok) throw new Error(`Google Fonts metadata fetch failed: ${r.status}`);
 
   const text = await r.text();
   // Response is prefixed with )]}' to prevent JSON hijacking
-  const json = JSON.parse(text.replace(/^\)\]\}'\n?/, "")) as {
+  const json = JSON.parse(text.replace(/^\)\]\}'\n?/, '')) as {
     familyMetadataList: Array<{
       family: string;
       category: string;
@@ -26,7 +26,7 @@ async function fetchGoogleFonts(): Promise<FontEntry[]> {
     }>;
   };
 
-  fontsCache = json.familyMetadataList.map((f) => ({
+  fontsCache = json.familyMetadataList.map(f => ({
     family: f.family,
     category: f.category,
     weights: Object.keys(f.fonts ?? {}),
@@ -37,7 +37,7 @@ async function fetchGoogleFonts(): Promise<FontEntry[]> {
 
 const server = serve({
   routes: {
-    "/api/fonts": {
+    '/api/fonts': {
       async GET() {
         try {
           const fonts = await fetchGoogleFonts();
@@ -50,10 +50,10 @@ const server = serve({
     },
 
     // Serve index.html for all unmatched routes
-    "/*": index,
+    '/*': index,
   },
 
-  development: process.env.NODE_ENV !== "production" && {
+  development: process.env.NODE_ENV !== 'production' && {
     hmr: true,
     console: true,
   },
