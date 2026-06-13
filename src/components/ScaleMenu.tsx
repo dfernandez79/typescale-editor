@@ -31,12 +31,12 @@ export function ScaleMenu({ onInsert }: ScaleMenuProps) {
     <div ref={menuRef} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-100 transition-colors"
+        className="flex items-center gap-1 px-2 py-1 text-xs font-medium rounded bg-zinc-700 hover:bg-zinc-600 text-zinc-100 transition-colors"
         title="Insert CSS custom properties for a type scale"
       >
         <span>Insert Scale</span>
         <svg
-          className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`}
           viewBox="0 0 16 16"
           fill="currentColor"
         >
