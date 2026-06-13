@@ -1,20 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
 
-export interface FontFamily {
+export type FontFamily = {
   family: string;
   category: string;
   weights: string[];
-}
+};
 
-async function fetchFonts(): Promise<FontFamily[]> {
+const fetchFonts = async (): Promise<FontFamily[]> => {
   const res = await fetch('/api/fonts');
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json() as Promise<FontFamily[]>;
-}
+};
 
-export function useFonts() {
+export const useFonts = () => {
   return useQuery({
     queryKey: ['fonts'],
     queryFn: fetchFonts,
   });
-}
+};

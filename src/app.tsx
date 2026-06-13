@@ -6,16 +6,16 @@ import { ScaleMenu } from './components/scale-menu';
 import { DEFAULT_CSS, DEFAULT_MARKDOWN } from './lib/defaultContent';
 import './index.css';
 
-export function App() {
+export const App = () => {
   const [cssText, setCssText] = useState(DEFAULT_CSS);
   const [markdownText, setMarkdownText] = useState(DEFAULT_MARKDOWN);
   const [showFontPicker, setShowFontPicker] = useState(false);
   const [cssCollapsed, setCssCollapsed] = useState(false);
   const editorRef = useRef<CssEditorHandle>(null);
 
-  function insertText(text: string) {
+  const insertText = (text: string) => {
     editorRef.current?.insertText(text);
-  }
+  };
 
   return (
     <div className="flex flex-col h-screen bg-zinc-950 text-zinc-100 overflow-hidden">
@@ -112,6 +112,6 @@ export function App() {
       )}
     </div>
   );
-}
+};
 
 export default App;

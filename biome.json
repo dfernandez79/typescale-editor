@@ -17,7 +17,11 @@
       },
       "style": {
         "useAsConstAssertion": "error",
-        "useEnumInitializers": "error"
+        "useEnumInitializers": "error",
+        "useConsistentTypeDefinitions": {
+          "level": "error",
+          "options": { "style": "type" }
+        }
       }
     }
   },

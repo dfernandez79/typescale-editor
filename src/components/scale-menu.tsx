@@ -1,31 +1,31 @@
 import { useEffect, useRef, useState } from 'react';
 import { generateScaleCss, SCALES } from '../lib/scales';
 
-interface ScaleMenuProps {
+type ScaleMenuProps = {
   onInsert: (css: string) => void;
-}
+};
 
-export function ScaleMenu({ onInsert }: ScaleMenuProps) {
+export const ScaleMenu = ({ onInsert }: ScaleMenuProps) => {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Close on outside click
   useEffect(() => {
     if (!open) return;
-    function handler(e: MouseEvent) {
+    const handler = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
-    }
+    };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
-  function handlePick(name: string, ratio: number) {
+  const handlePick = (name: string, ratio: number) => {
     const snippet = generateScaleCss(name, ratio);
     onInsert(snippet);
     setOpen(false);
-  }
+  };
 
   return (
     <div ref={menuRef} className="relative">
@@ -70,4 +70,4 @@ export function ScaleMenu({ onInsert }: ScaleMenuProps) {
       )}
     </div>
   );
-}
+};

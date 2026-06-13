@@ -1,13 +1,13 @@
 import { marked } from 'marked';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-interface PreviewPanelProps {
+type PreviewPanelProps = {
   css: string;
   markdown: string;
   onMarkdownChange: (md: string) => void;
-}
+};
 
-function buildSrcDoc(css: string, html: string): string {
+const buildSrcDoc = (css: string, html: string): string => {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -17,13 +17,13 @@ function buildSrcDoc(css: string, html: string): string {
 </head>
 <body>${html}</body>
 </html>`;
-}
+};
 
-export function PreviewPanel({
+export const PreviewPanel = ({
   css,
   markdown,
   onMarkdownChange,
-}: PreviewPanelProps) {
+}: PreviewPanelProps) => {
   const [srcDoc, setSrcDoc] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -98,4 +98,4 @@ export function PreviewPanel({
       )}
     </div>
   );
-}
+};

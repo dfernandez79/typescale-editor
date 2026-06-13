@@ -33,7 +33,7 @@ import {
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 
 // Centered chevron fold marker (replaces default text glyphs that sit off-center)
-function foldMarker(open: boolean): HTMLElement {
+const foldMarker = (open: boolean): HTMLElement => {
   const span = document.createElement('span');
   span.style.display = 'flex';
   span.style.alignItems = 'center';
@@ -42,7 +42,7 @@ function foldMarker(open: boolean): HTMLElement {
     open ? 0 : -90
   }deg)"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
   return span;
-}
+};
 
 // codemirror's basicSetup, inlined so we can swap in a custom fold gutter marker
 const basicSetup = [
@@ -76,17 +76,17 @@ const basicSetup = [
   ]),
 ];
 
-export interface CssEditorHandle {
+export type CssEditorHandle = {
   insertText: (text: string) => void;
-}
+};
 
-interface CssEditorProps {
+type CssEditorProps = {
   value: string;
   onChange: (value: string) => void;
-}
+};
 
 export const CssEditor = forwardRef<CssEditorHandle, CssEditorProps>(
-  function CssEditor({ value, onChange }, ref) {
+  ({ value, onChange }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const viewRef = useRef<EditorView | null>(null);
     // Track whether the editor is the source of the current change

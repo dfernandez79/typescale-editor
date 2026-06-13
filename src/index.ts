@@ -1,16 +1,16 @@
 import { serve } from 'bun';
 import index from './index.html';
 
-interface FontEntry {
+type FontEntry = {
   family: string;
   category: string;
   weights: string[];
-}
+};
 
 // Cache the font list for the lifetime of the server process
 let fontsCache: FontEntry[] | null = null;
 
-async function fetchGoogleFonts(): Promise<FontEntry[]> {
+const fetchGoogleFonts = async (): Promise<FontEntry[]> => {
   if (fontsCache) return fontsCache;
 
   const r = await fetch('https://fonts.google.com/metadata/fonts');
@@ -33,7 +33,7 @@ async function fetchGoogleFonts(): Promise<FontEntry[]> {
   }));
 
   return fontsCache;
-}
+};
 
 const server = serve({
   routes: {

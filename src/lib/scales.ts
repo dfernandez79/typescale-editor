@@ -22,12 +22,12 @@ const STEP_NAMES: Record<string, string> = {
   '6': '5xl',
 };
 
-export function generateScaleCss(
+export const generateScaleCss = (
   name: string,
   ratio: number,
   base = 1,
   steps: [number, number] = [-2, 6]
-): string {
+): string => {
   const [min, max] = steps;
   const lines: string[] = [
     `/* ${name} — ratio: ${ratio} */`,
@@ -47,4 +47,4 @@ export function generateScaleCss(
 
   lines.push(`}`);
   return lines.join('\n');
-}
+};

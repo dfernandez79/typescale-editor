@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { type FontFamily, useFonts } from '../hooks/use-fonts';
 
-interface FontPickerModalProps {
+type FontPickerModalProps = {
   onInsert: (css: string) => void;
   onClose: () => void;
-}
+};
 
 const WEIGHT_LABELS: Record<string, string> = {
   '100': 'Thin',
@@ -20,11 +20,14 @@ const WEIGHT_LABELS: Record<string, string> = {
   italic: 'Italic',
 };
 
-function normalizeWeight(w: string): string {
+const normalizeWeight = (w: string): string => {
   return w === 'regular' ? '400' : w === 'italic' ? '400i' : w;
-}
+};
 
-export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
+export const FontPickerModal = ({
+  onInsert,
+  onClose,
+}: FontPickerModalProps) => {
   const { data: fonts = [], isLoading: loading, error } = useFonts();
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<FontFamily | null>(null);
@@ -44,7 +47,7 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
     ? fonts.filter(f => f.family.toLowerCase().includes(search.toLowerCase()))
     : fonts;
 
-  function selectFont(font: FontFamily) {
+  const selectFont = (font: FontFamily) => {
     setSelected(font);
     // Default: pick "regular"/400 if available, else first weight
     const defaultWeight =
@@ -52,9 +55,9 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
       font.weights[0] ??
       'regular';
     setSelectedWeights(new Set([normalizeWeight(defaultWeight ?? '400')]));
-  }
+  };
 
-  function toggleWeight(w: string) {
+  const toggleWeight = (w: string) => {
     const norm = normalizeWeight(w);
     setSelectedWeights(prev => {
       const next = new Set(prev);
@@ -66,9 +69,9 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
       }
       return next;
     });
-  }
+  };
 
-  function buildSnippet(): string {
+  const buildSnippet = (): string => {
     if (!selected) return '';
     const familyParam = selected.family.replace(/ /g, '+');
     const weightsStr = Array.from(selectedWeights)
@@ -77,13 +80,13 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
       .join(';');
     const url = `https://fonts.googleapis.com/css2?family=${familyParam}:wght@${weightsStr}&display=swap`;
     return `@import url('${url}');\n/* font-family: '${selected.family}', ${selected.category}; */`;
-  }
+  };
 
-  function handleInsert() {
+  const handleInsert = () => {
     const snippet = buildSnippet();
     if (snippet) onInsert(snippet);
     dialogRef.current?.close();
-  }
+  };
 
   return (
     <dialog
@@ -229,4 +232,4 @@ export function FontPickerModal({ onInsert, onClose }: FontPickerModalProps) {
       </div>
     </dialog>
   );
-}
+};
